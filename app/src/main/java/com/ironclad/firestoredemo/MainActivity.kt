@@ -46,7 +46,9 @@ class MainActivity : AppCompatActivity() {
                     var data = ""
                     for (value in it) {
                         val note = value.toObject(Note::class.java)
-                        data += "Title: ${note.title} \n Description: ${note.description} \n\n"
+                        note.documentId = value.id
+
+                        data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n\n"
                     }
 
                     tvShow.text = data
@@ -57,5 +59,25 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     override fun onStart() {
         super.onStart()
+        noteListener = notebookRef.addSnapshotListener { value, error ->
+            if (error != null) {
+                return@addSnapshotListener
+            }
+
+            var data = ""
+            for (snapshot in value!!) {
+                val note = snapshot.toObject(Note::class.java)
+                note.documentId = snapshot.id
+
+                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n\n"
+            }
+
+            tvShow.text = data
+        }
+    }
+
+    override fun onStop() {
+        noteListener.remove()
+        super.onStop()
     }
 }
