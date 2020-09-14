@@ -23,7 +23,7 @@
         android:inputType="textCapSentences" />
 
     <Button
-        android:id="@+id/btnSubmit"
+        android:id="@+id/btnAdd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/save" />
@@ -33,24 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/load" />
-
-    <Button
-        android:id="@+id/btnUpdate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/update_description" />
-
-    <Button
-        android:id="@+id/btnDeleteDesc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_description" />
-
-    <Button
-        android:id="@+id/btnDeleteNote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_note" />
 
     <TextView
         android:id="@+id/tvShow"

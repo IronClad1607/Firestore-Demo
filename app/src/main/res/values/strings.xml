@@ -2,7 +2,7 @@
     <string name="app_name">FirestoreDemo</string>
     <string name="title">Title:</string>
     <string name="description">Description:</string>
-    <string name="save">Save</string>
+    <string name="save">Add</string>
     <string name="load">Load</string>
     <string name="update_description">Update Description</string>
     <string name="delete_description">Delete Description</string>
