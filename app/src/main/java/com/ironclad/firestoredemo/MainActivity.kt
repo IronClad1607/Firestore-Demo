@@ -80,6 +80,10 @@ class MainActivity : AppCompatActivity() {
         btnDeleteDesc.setOnClickListener {
             noteRef.update(keyDescription, FieldValue.delete())
         }
+
+        btnDeleteNote.setOnClickListener {
+            noteRef.delete()
+        }
     }
 
     @SuppressLint("SetTextI18n")
