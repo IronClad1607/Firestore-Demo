@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,20 +36,28 @@ class MainActivity : AppCompatActivity() {
             val title = etTitle.text.toString()
             val description = etDescription.text.toString()
 
-            val message = Note(title, description)
+            if (etPriority.length() == 0) {
+                etPriority.setText("0")
+            }
+
+            val priority = etPriority.text.toString().toInt()
+
+            val message = Note(title, description, priority)
 
             notebookRef.add(message)
         }
 
         btnLoad.setOnClickListener {
-            notebookRef.get()
+            notebookRef.whereGreaterThanOrEqualTo("priority", 2)
+                .orderBy("priority", Query.Direction.DESCENDING)
+                .get()
                 .addOnSuccessListener {
                     var data = ""
                     for (value in it) {
                         val note = value.toObject(Note::class.java)
                         note.documentId = value.id
 
-                        data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n\n"
+                        data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority: ${note.priority} \n\n"
                     }
 
                     tvShow.text = data
@@ -69,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 val note = snapshot.toObject(Note::class.java)
                 note.documentId = snapshot.id
 
-                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n\n"
+                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority:${note.priority} \n\n"
             }
 
             tvShow.text = data

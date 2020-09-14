@@ -7,4 +7,5 @@
     <string name="update_description">Update Description</string>
     <string name="delete_description">Delete Description</string>
     <string name="delete_note">Delete Note</string>
+    <string name="priority">Priority</string>
 </resources>
