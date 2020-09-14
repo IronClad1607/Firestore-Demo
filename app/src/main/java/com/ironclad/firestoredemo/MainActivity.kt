@@ -64,6 +64,14 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "Document failed: ${it.toString()}")
                 }
         }
+
+        btnUpdate.setOnClickListener {
+            val description = etDescription.text.toString()
+
+            db.collection("Notebook")
+                .document("First Note")
+                .update(keyDescription, description)
+        }
     }
 
     @SuppressLint("SetTextI18n")
