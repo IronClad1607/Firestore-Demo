@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -18,6 +19,9 @@ class MainActivity : AppCompatActivity() {
     private val db by lazy {
         Firebase.firestore
     }
+
+    val noteRef = db.collection("Notebook")
+        .document("First Note")
 
     private lateinit var noteListener: ListenerRegistration
 
@@ -72,6 +76,10 @@ class MainActivity : AppCompatActivity() {
                 .document("First Note")
                 .update(keyDescription, description)
         }
+
+        btnDeleteDesc.setOnClickListener {
+            noteRef.update(keyDescription, FieldValue.delete())
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -88,6 +96,8 @@ class MainActivity : AppCompatActivity() {
                     val description = value.getString(keyDescription)
 
                     tvShow.text = "Title: $title \n Description: $description"
+                } else {
+                    tvShow.text = ""
                 }
             }
     }

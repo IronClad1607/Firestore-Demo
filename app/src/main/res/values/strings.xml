@@ -5,4 +5,6 @@
     <string name="save">Save</string>
     <string name="load">Load</string>
     <string name="update_description">Update Description</string>
+    <string name="delete_description">Delete Description</string>
+    <string name="delete_note">Delete Note</string>
 </resources>
