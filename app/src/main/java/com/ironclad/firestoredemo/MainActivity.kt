@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.whenAllSuccess
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -14,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var noteListener: ListenerRegistration
     private val TAG = "PUI"
 
     private val db by lazy {
@@ -112,28 +115,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    @SuppressLint("SetTextI18n")
-//    override fun onStart() {
-//        super.onStart()
-//        noteListener = notebookRef.addSnapshotListener { value, error ->
-//            if (error != null) {
-//                return@addSnapshotListener
-//            }
-//
-//            var data = ""
-//            for (snapshot in value!!) {
-//                val note = snapshot.toObject(Note::class.java)
-//                note.documentId = snapshot.id
-//
-//                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority:${note.priority} \n\n"
-//            }
-//
-//            tvShow.text = data
-//        }
-//    }
+    @SuppressLint("SetTextI18n")
+    override fun onStart() {
+        super.onStart()
+        noteListener = notebookRef.addSnapshotListener { value, error ->
+            if (error != null) {
+                return@addSnapshotListener
+            }
 
-//    override fun onStop() {
-//        noteListener.remove()
-//        super.onStop()
-//    }
+            for (dc in value!!.documentChanges) {
+                val documentSnapshot = dc.document
+                val id = documentSnapshot.id
+                val oldIndex = dc.oldIndex
+                val newIndex = dc.newIndex
+
+                when (dc.type) {
+                    DocumentChange.Type.ADDED -> {
+                        tvShow.append("\nAdded: $id \n Old Index: $oldIndex New Index: $newIndex")
+                    }
+
+                    DocumentChange.Type.REMOVED -> {
+                        tvShow.append("\nRemoved: $id \n Old Index: $oldIndex New Index: $newIndex")
+                    }
+
+                    DocumentChange.Type.MODIFIED -> {
+                        tvShow.append("\nModified: $id \n Old Index: $oldIndex New Index: $newIndex")
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        noteListener.remove()
+        super.onStop()
+    }
 }
