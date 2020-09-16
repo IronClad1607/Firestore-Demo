@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         btnLoad.setOnClickListener {
             notebookRef.whereGreaterThanOrEqualTo("priority", 2)
+                .whereEqualTo("title", "Aa")
                 .orderBy("priority", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener {
@@ -61,6 +62,9 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     tvShow.text = data
+                }
+                .addOnFailureListener {
+                    Log.d(TAG, it.toString())
                 }
         }
     }
