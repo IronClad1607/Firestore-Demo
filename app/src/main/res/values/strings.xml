@@ -8,4 +8,5 @@
     <string name="delete_description">Delete Description</string>
     <string name="delete_note">Delete Note</string>
     <string name="priority">Priority</string>
+    <string name="loador">Load Or Query</string>
 </resources>

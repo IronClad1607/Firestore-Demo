@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.tasks.Tasks.whenAllSuccess
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
@@ -66,6 +70,33 @@ class MainActivity : AppCompatActivity() {
                 .addOnFailureListener {
                     Log.d(TAG, it.toString())
                 }
+        }
+
+        btnLoadOr.setOnClickListener {
+            val task1 = notebookRef.whereLessThan("priority", 2)
+                .orderBy("priority")
+                .get()
+
+            val task2 = notebookRef.whereGreaterThan("priority", 2)
+                .orderBy("priority")
+                .get()
+
+            val allTask: Task<List<QuerySnapshot>> = whenAllSuccess(task1, task2)
+            allTask.addOnSuccessListener {
+                var data = ""
+
+                for (main in it) {
+                    for (value in main) {
+                        val note = value.toObject(Note::class.java)
+                        note.documentId = value.id
+
+                        data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority: ${note.priority} \n\n"
+                    }
+                }
+
+                tvShow.text = data
+            }
+
         }
     }
 
