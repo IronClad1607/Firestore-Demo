@@ -2,39 +2,32 @@ package com.ironclad.firestoredemo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.tasks.Tasks.whenAllSuccess
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "PUI"
-    private val keyTitle = "title"
-    private val keyDescription = "description"
 
     private val db by lazy {
         Firebase.firestore
     }
 
     private val notebookRef = db.collection("Notebook")
-    private val noteRef = db.collection("Notebook")
-        .document("First Note")
-
-    private lateinit var noteListener: ListenerRegistration
+    private var lastResult: DocumentSnapshot? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         btnAdd.setOnClickListener {
             val title = etTitle.text.toString()
@@ -52,24 +45,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnLoad.setOnClickListener {
-            notebookRef.whereGreaterThanOrEqualTo("priority", 2)
-                .whereEqualTo("title", "Aa")
-                .orderBy("priority", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener {
-                    var data = ""
-                    for (value in it) {
-                        val note = value.toObject(Note::class.java)
-                        note.documentId = value.id
-
-                        data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority: ${note.priority} \n\n"
-                    }
-
-                    tvShow.text = data
+            val query = if (lastResult == null) {
+                notebookRef.orderBy("priority")
+                    .limit(3)
+                    .get()
+            } else {
+                notebookRef.orderBy("priority")
+                    .startAfter(lastResult)
+                    .limit(3)
+                    .get()
+            }
+            query.addOnSuccessListener { queryDocumentSnapshots ->
+                var data = ""
+                for (documentSnapshot in queryDocumentSnapshots) {
+                    val note = documentSnapshot.toObject(
+                        Note::class.java
+                    )
+                    note.documentId = documentSnapshot.id
+                    val documentId = note.documentId
+                    val title = note.title
+                    val description = note.description
+                    val priority = note.priority
+                    data += """
+            ID: $documentId
+            Title: $title
+            Description: $description
+            Priority: $priority
+            
+            
+            """.trimIndent()
                 }
-                .addOnFailureListener {
-                    Log.d(TAG, it.toString())
+                if (queryDocumentSnapshots.size() > 0) {
+                    data += "___________\n\n"
+                    tvShow.append(data)
+                    lastResult =
+                        queryDocumentSnapshots.documents[queryDocumentSnapshots.size() - 1]
                 }
+            }
         }
 
         btnLoadOr.setOnClickListener {
@@ -100,28 +112,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    override fun onStart() {
-        super.onStart()
-        noteListener = notebookRef.addSnapshotListener { value, error ->
-            if (error != null) {
-                return@addSnapshotListener
-            }
+//    @SuppressLint("SetTextI18n")
+//    override fun onStart() {
+//        super.onStart()
+//        noteListener = notebookRef.addSnapshotListener { value, error ->
+//            if (error != null) {
+//                return@addSnapshotListener
+//            }
+//
+//            var data = ""
+//            for (snapshot in value!!) {
+//                val note = snapshot.toObject(Note::class.java)
+//                note.documentId = snapshot.id
+//
+//                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority:${note.priority} \n\n"
+//            }
+//
+//            tvShow.text = data
+//        }
+//    }
 
-            var data = ""
-            for (snapshot in value!!) {
-                val note = snapshot.toObject(Note::class.java)
-                note.documentId = snapshot.id
-
-                data += "ID: ${note.documentId} \n Title: ${note.title} \n Description: ${note.description} \n Priority:${note.priority} \n\n"
-            }
-
-            tvShow.text = data
-        }
-    }
-
-    override fun onStop() {
-        noteListener.remove()
-        super.onStop()
-    }
+//    override fun onStop() {
+//        noteListener.remove()
+//        super.onStop()
+//    }
 }
